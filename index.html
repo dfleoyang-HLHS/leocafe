@@ -251,19 +251,20 @@
             }
         };
 
-        // --- Data: Roast Curve (Updated based on the provided image) ---
+        // --- Data: Roast Curve (UPDATED based on user request: 200°C -> 100°C @ 2:00 -> 210°C @ 11:00) ---
         const roastData = {
-            labels: ['0:00 入豆', '1:00 回溫點', '2:00', '3:00 轉黃', '4:00 梅納始', '5:00', '6:00 焦糖始', '7:00', '8:00 一爆', '9:00', '10:00 二爆', '11:00 結束'],
-            // Approximate U-shape at start and key temperatures from the image
-            temps: [25, 100, 130, 145, 155, 165, 175, 188, 198, 208, 215, 220],
-            // Phase definitions based on the image's division
+            // New labels aligning with the 11-minute timeline and new events
+            labels: ['0:00 入豆', '1:00', '2:00 回溫點', '3:00 轉黃', '4:00 梅納始', '5:00', '6:00 焦糖始', '7:00', '8:00 一爆', '9:00', '10:00 二爆', '11:00 結束'],
+            // New temperature curve: Drop from 200 to 100 (Turning Point) then rise to 210
+            temps: [200, 140, 100, 115, 145, 160, 175, 188, 198, 203, 208, 210],
+            // Phase definitions based on the new timings
             phases: {
-                drying: { start: 0, end: 2, label: '脫水期' },
-                yellowing: { start: 2, end: 4, label: '轉黃期' },
+                drying: { start: 0, end: 3, label: '脫水期' }, // End at 3:00 (index 3, which is 轉黃)
+                yellowing: { start: 3, end: 4, label: '轉黃期' }, // End at 4:00 (index 4, which is 梅納始)
                 development: { start: 4, end: 11, label: '風味發展期' }
             },
-            // Specific event indices for tooltips and points
-            eventIndices: [1, 3, 4, 6, 8, 10] // 回溫點, 轉黃, 梅納始, 焦糖始, 一爆, 二爆
+            // Specific event indices: [Turning Point, Yellowing, Maillard Start, Caramel Start, First Crack, Second Crack]
+            eventIndices: [2, 3, 4, 6, 8, 10] 
         };
 
         // --- Data: Content Content (Updated for new phases) ---
@@ -275,13 +276,13 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
                         <div>
                             <p class="mb-4 text-lg">
-                                烘焙初期，豆溫會經歷一個戲劇性的下降，直到觸及<strong>回溫點</strong>。這代表了在開始學習前，必須先適應環境和工具。
+                                烘焙初期，豆溫會經歷一個戲劇性的下降，直到觸及<strong>回溫點</strong>（約 ${roastData.temps[2]}°C）。這代表了在開始學習前，必須先適應環境和工具。
                             </p>
                             <p class="mb-4">
                                 情緒上，這是從舊習慣（拿鐵的舒適圈）到新環境（手烘黑咖啡）的適應期。必須先脫去「水分」（舊的依賴），才能開始升溫。
                             </p>
                             <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-amber-300">
-                                <h4 class="font-bold text-amber-800 mb-1">關鍵事件：回溫點</h4>
+                                <h4 class="font-bold text-amber-800 mb-1">關鍵事件：回溫點 (2:00)</h4>
                                 <p class="text-sm text-gray-600">度過最低谷，開始穩步升溫。確認目標後，必須穩定投入熱量。</p>
                             </div>
                         </div>
@@ -300,7 +301,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <p class="mb-4 text-lg">
-                                豆子從綠色轉為黃色 (<strong>轉黃</strong>)，標誌著<strong>梅納反應開始</strong>。這是胺基酸與還原糖作用，形成複雜風味前驅物的關鍵階段。
+                                豆子從綠色轉為黃色 (<strong>轉黃</strong>，約 ${roastData.labels[3].split(' ')[0]})，標誌著<strong>梅納反應開始</strong>（約 ${roastData.labels[4].split(' ')[0]}）。這是胺基酸與還原糖作用，形成複雜風味前驅物的關鍵階段。
                             </p>
                             <p class="mb-4">
                                 正是高價精品豆的成本壓力，促使我決心進入這複雜的領域，從手寫筆記到 **Arduino + Artisan** 數位化，追求精準度。
@@ -321,7 +322,7 @@
                 body: `
                     <div class="space-y-4">
                         <p class="text-lg">
-                            此階段從<strong>焦糖化反應開始</strong>，歷經<strong>一爆</strong>和<strong>二爆</strong>。一爆是豆子內部壓力積聚後的劇烈釋放，像極了我們在工作中的情緒爆發。
+                            此階段從<strong>焦糖化反應開始</strong>（約 ${roastData.labels[6].split(' ')[0]}），歷經<strong>一爆</strong>和<strong>二爆</strong>。一爆是豆子內部壓力積聚後的劇烈釋放，像極了我們在工作中的情緒爆發。
                         </p>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                             <div class="bg-red-50 p-4 rounded-lg">
@@ -418,8 +419,8 @@
                                 },
                                 afterLabel: function(context) {
                                     const idx = context.dataIndex;
-                                    if (idx <= 2) return "階段: 脫水期";
-                                    if (idx > 2 && idx <= 4) return "階段: 轉黃期";
+                                    if (idx <= 3) return "階段: 脫水期"; // Changed from 2 to 3
+                                    if (idx > 3 && idx <= 4) return "階段: 轉黃期";
                                     return "階段: 風味發展期";
                                 }
                             }
@@ -441,8 +442,8 @@
                     onClick: (e, elements) => {
                         if (elements.length > 0) {
                             const index = elements[0].index;
-                            if (index <= 2) updatePhase('drying');
-                            else if (index > 2 && index <= 4) updatePhase('yellowing');
+                            if (index <= 3) updatePhase('drying'); // Changed from 2 to 3
+                            else if (index > 3 && index <= 4) updatePhase('yellowing');
                             else updatePhase('development');
                         }
                     }
@@ -519,8 +520,8 @@
             
             labels.forEach((_, index) => {
                 let isActive = false;
-                if (phaseId === 'drying' && index <= 2) isActive = true;
-                else if (phaseId === 'yellowing' && index > 2 && index <= 4) isActive = true;
+                if (phaseId === 'drying' && index <= 3) isActive = true; // Changed from 2 to 3
+                else if (phaseId === 'yellowing' && index > 3 && index <= 4) isActive = true; // Changed from 2 to 3
                 else if (phaseId === 'development' && index > 4) isActive = true;
                 
                 newColors.push(roastData.eventIndices.includes(index) ? (isActive ? '#d97706' : '#a0522d') : (isActive ? '#d97706' : '#fff'));

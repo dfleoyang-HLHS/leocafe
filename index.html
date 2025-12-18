@@ -12,11 +12,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
         body {
-            font-family: 'Noto Sans TC', sans-serif;
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
             background-color: #fdfbf7; /* Creamy White */
             color: #3e3232; /* Dark Coffee */
         }
@@ -31,22 +31,12 @@
             border-color: #8b5a2b;
         }
 
-        /* Custom Scrollbar for inner content */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #c7a17a; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #a07855; 
-        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c7a17a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a07855; }
 
-        /* Chart Container Utilities */
         .chart-wrapper {
             position: relative;
             width: 100%;
@@ -55,30 +45,16 @@
             justify-content: center;
             align-items: center;
         }
+        
+        [data-lang]:hidden { display: none; }
     </style>
 
     <!-- Chosen Palette: Warm Coffee Tones -->
-    <!-- Primary: #4b3621 (Dark Roast), Secondary: #8b5a2b (Medium Roast/Maillard), Background: #fdfbf7 (Milk Foam) -->
-
     <!-- Application Structure Plan: 
-         1. Hero Section: Introduction to Leo's Café story.
-         2. Interactive Master Roast Curve: The central navigation piece. Clicking phases on the chart updates the detailed content below. The curve now features the critical "回溫點" and "轉黃" events as per the source image.
-         3. Dynamic Content Panels:
-            - 脫水期 (Drying): Crossing the threshold (Turning Point) and initial adaptation.
-            - 轉黃期 (Yellowing): Start of Maillard and the shift from "green" to "yellow" (First visible change). Data viz on Cost Savings.
-            - 風味發展期 (Flavor Development): Caramelization, Cracks, SEL Matrix, and Mindfulness.
-         4. Conclusion: Summary of the philosophy.
-         Why: This structure accurately mirrors the image's technical stages while maintaining the emotional and chronological flow of the story.
+         - Bilingual implementation using JS state.
+         - All technical roasting data points (200C start, Turning Point at 2:00, 210C end) maintained.
+         - Interactive elements for SEL and Mindfulness.
     -->
-
-    <!-- Visualization & Content Choices:
-         - Master Roast Curve (Line Chart): Visualizes the physical journey, including the drop to the Turning Point. Interaction: Click to filter content.
-         - Cost Comparison (Bar Chart): Quantitative proof of the cost catalyst (placed in the crucial transition phase).
-         - Mindfulness Canvas: A pulsating circle simulating "RoR" focus.
-         - SEL Matrix: Interactive HTML grid.
-         - NO SVG/Mermaid: All graphics via Canvas or CSS/HTML.
-    -->
-
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -86,24 +62,30 @@
     <!-- Header -->
     <header class="coffee-gradient text-white shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold tracking-wide">☕ 里歐咖啡館 Leo's Café</h1>
-            <nav class="hidden md:flex space-x-6 text-sm font-medium">
-                <button onclick="scrollToSection('intro')" class="hover:text-amber-200 transition">緣起</button>
-                <button onclick="scrollToSection('roast-journey')" class="hover:text-amber-200 transition">烘焙旅程</button>
-                <button onclick="scrollToSection('sel-mindfulness')" class="hover:text-amber-200 transition">情緒學習</button>
-            </nav>
+            <h1 class="text-xl md:text-2xl font-bold tracking-wide">☕ 里歐咖啡館 Leo's Café</h1>
+            <div class="flex items-center space-x-4 md:space-x-8">
+                <nav class="hidden md:flex space-x-6 text-sm font-medium">
+                    <button onclick="scrollToSection('intro')" class="hover:text-amber-200 transition" data-i18n="nav_origin">緣起</button>
+                    <button onclick="scrollToSection('roast-journey')" class="hover:text-amber-200 transition" data-i18n="nav_journey">烘焙旅程</button>
+                    <button onclick="scrollToSection('sel-mindfulness')" class="hover:text-amber-200 transition" data-i18n="nav_sel">情緒學習</button>
+                </nav>
+                <!-- Language Toggle -->
+                <button onclick="toggleLanguage()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full text-xs font-bold border border-white/50 transition">
+                    <span id="lang-toggle-text">EN</span>
+                </button>
+            </div>
         </div>
     </header>
 
     <!-- Intro Section -->
     <section id="intro" class="container mx-auto px-4 py-12 md:py-20 text-center max-w-4xl">
-        <h2 class="text-3xl md:text-5xl font-bold mb-6 text-amber-900">從拉花拿鐵到手烘黑金</h2>
-        <p class="text-lg md:text-xl text-gray-700 leading-relaxed mb-8">
-            這不僅是一杯咖啡的風味蛻變，更是一場關於<strong>覺察、失措與平衡</strong>的情緒學習之旅。<br>
+        <h2 class="text-3xl md:text-5xl font-bold mb-6 text-amber-900" data-i18n="hero_title">從拉花拿鐵到手烘黑金</h2>
+        <p class="text-lg md:text-xl text-gray-700 leading-relaxed mb-8" data-i18n="hero_desc">
+            這不僅是一杯咖啡的風味蛻變，更是一場關於覺察、失措與平衡的情緒學習之旅。<br>
             面對黑咖啡的純粹，我們也同時學會了面對真實的自我與壓力。
         </p>
         <div class="flex justify-center gap-4">
-            <button onclick="scrollToSection('roast-journey')" class="bg-amber-800 hover:bg-amber-900 text-white font-bold py-3 px-8 rounded-full transition shadow-md transform hover:scale-105">
+            <button onclick="scrollToSection('roast-journey')" class="bg-amber-800 hover:bg-amber-900 text-white font-bold py-3 px-8 rounded-full transition shadow-md transform hover:scale-105" data-i18n="hero_btn">
                 開始探索烘焙曲線
             </button>
         </div>
@@ -112,107 +94,68 @@
     <!-- Main Interactive Dashboard -->
     <main class="flex-grow container mx-auto px-4 pb-20 space-y-16">
 
-        <!-- Section 1: The Master Roast Curve (Navigation Hub) -->
+        <!-- Section 1: The Master Roast Curve -->
         <section id="roast-journey" class="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-amber-100">
             <div class="mb-6">
-                <h3 class="text-2xl font-bold text-amber-900 mb-2">🔥 烘焙升溫曲線 (Roasting Curve)</h3>
-                <p class="text-gray-600">
-                    點擊下方圖表中的不同階段或按鈕，探索里歐的咖啡與心路歷程。曲線包含了「回溫點」、「轉黃」等關鍵事件。
+                <h3 class="text-2xl font-bold text-amber-900 mb-2" data-i18n="journey_title">🔥 烘焙升溫曲線 (Roasting Curve)</h3>
+                <p class="text-gray-600" data-i18n="journey_desc">
+                    點擊圖表中的階段探索心路歷程。曲線包含了「回溫點」、「轉黃」等關鍵事件。
                 </p>
             </div>
 
-            <!-- Chart Container -->
             <div class="w-full h-[300px] md:h-[400px] chart-wrapper mb-8">
                 <div class="relative w-full h-full max-w-4xl mx-auto">
                     <canvas id="roastCurveChart"></canvas>
                 </div>
             </div>
 
-            <!-- Phase Control Buttons (Alternative Navigation) -->
             <div class="flex flex-wrap justify-center gap-4 mb-8">
-                <button onclick="updatePhase('drying')" id="btn-drying" class="phase-btn px-6 py-2 border-2 border-amber-200 rounded-lg font-bold text-amber-900 hover:bg-amber-50 transition">
+                <button onclick="updatePhase('drying')" id="btn-drying" class="phase-btn px-6 py-2 border-2 border-amber-200 rounded-lg font-bold text-amber-900 hover:bg-amber-50 transition" data-i18n="phase1_btn">
                     1. 脫水期
                 </button>
-                <button onclick="updatePhase('yellowing')" id="btn-yellowing" class="phase-btn px-6 py-2 border-2 border-amber-200 rounded-lg font-bold text-amber-900 hover:bg-amber-50 transition">
+                <button onclick="updatePhase('yellowing')" id="btn-yellowing" class="phase-btn px-6 py-2 border-2 border-amber-200 rounded-lg font-bold text-amber-900 hover:bg-amber-50 transition" data-i18n="phase2_btn">
                     2. 轉黃期
                 </button>
-                <button onclick="updatePhase('development')" id="btn-development" class="phase-btn px-6 py-2 border-2 border-amber-200 rounded-lg font-bold text-amber-900 hover:bg-amber-50 transition">
+                <button onclick="updatePhase('development')" id="btn-development" class="phase-btn px-6 py-2 border-2 border-amber-200 rounded-lg font-bold text-amber-900 hover:bg-amber-50 transition" data-i18n="phase3_btn">
                     3. 風味發展期
                 </button>
             </div>
 
-            <!-- Dynamic Content Area -->
             <div id="dynamic-content" class="bg-amber-50 rounded-xl p-6 md:p-10 transition-all duration-500 ease-in-out min-h-[400px]">
-                <!-- Content will be injected here via JS -->
+                <!-- Dynamic Content -->
             </div>
         </section>
 
-        <!-- Section 2: SEL & Mindfulness Deep Dive -->
+        <!-- Section 2: SEL & Mindfulness -->
         <section id="sel-mindfulness" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
             <!-- Left Col: SEL Matrix -->
             <div class="bg-white rounded-2xl shadow-xl p-6 border-l-8 border-amber-700">
-                <h3 class="text-2xl font-bold text-amber-900 mb-4">🧠 情緒學習對照表 (SEL Matrix)</h3>
-                <p class="text-sm text-gray-500 mb-6">將烘焙的物理化學變化，對應到教師的情緒管理歷程。</p>
+                <h3 class="text-2xl font-bold text-amber-900 mb-4" data-i18n="matrix_title">🧠 情緒學習對照表 (SEL Matrix)</h3>
+                <p class="text-sm text-gray-500 mb-6" data-i18n="matrix_desc">將烘焙的物理化學變化，對應到教師的情緒管理歷程。</p>
                 
-                <div class="space-y-4">
-                    <div class="group p-4 border border-gray-200 rounded-lg hover:bg-amber-50 hover:border-amber-300 transition cursor-pointer">
-                        <div class="flex justify-between items-center mb-2">
-                            <h4 class="font-bold text-lg text-amber-800">脫水期 (Drying)</h4>
-                            <span class="text-xs bg-gray-200 px-2 py-1 rounded">入豆 → 轉黃</span>
-                        </div>
-                        <p class="text-gray-600 text-sm mb-2"><strong>物理：</strong> 回溫點是最低谷。排出水分。</p>
-                        <div class="pl-4 border-l-2 border-amber-500">
-                            <p class="text-amber-700 font-medium text-sm">❤️ 情緒對應：壓力認知與清空</p>
-                            <p class="text-gray-500 text-xs mt-1">經歷「回溫點」的低潮後，開始穩步升溫。意識到壓力，並為新的改變做準備。</p>
-                        </div>
-                    </div>
-
-                    <div class="group p-4 border border-gray-200 rounded-lg hover:bg-amber-50 hover:border-amber-300 transition cursor-pointer">
-                        <div class="flex justify-between items-center mb-2">
-                            <h4 class="font-bold text-lg text-amber-800">轉黃期 (Yellowing)</h4>
-                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">轉黃 → 梅納始</span>
-                        </div>
-                        <p class="text-gray-600 text-sm mb-2"><strong>化學：</strong> 豆子轉黃，梅納反應開始。風味前驅物生成。</p>
-                        <div class="pl-4 border-l-2 border-amber-500">
-                            <p class="text-amber-700 font-medium text-sm">❤️ 情緒對應：覺察與校準</p>
-                            <p class="text-gray-500 text-xs mt-1">進入複雜的化學反應區。需要高專注度，將「失措」視為數據點，進行精準校準。</p>
-                        </div>
-                    </div>
-
-                    <div class="group p-4 border border-gray-200 rounded-lg hover:bg-amber-50 hover:border-amber-300 transition cursor-pointer">
-                        <div class="flex justify-between items-center mb-2">
-                            <h4 class="font-bold text-lg text-amber-800">風味發展期 (Development)</h4>
-                            <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">焦糖始 → 二爆</span>
-                        </div>
-                        <p class="text-gray-600 text-sm mb-2"><strong>化學：</strong> 焦糖化、一爆、二爆。壓力完全釋放。</p>
-                        <div class="pl-4 border-l-2 border-amber-500">
-                            <p class="text-amber-700 font-medium text-sm">❤️ 情緒對應：釋放與平衡</p>
-                            <p class="text-gray-500 text-xs mt-1">一爆是壓力釋放。此後需**穩定 RoR**，在熱情 (酸質) 與穩定 (醇厚度) 間找到平衡。</p>
-                        </div>
-                    </div>
+                <div class="space-y-4" id="sel-matrix-container">
+                    <!-- Matrix items will be rendered by JS for bilingual support -->
                 </div>
             </div>
 
             <!-- Right Col: Mindfulness Visualizer -->
             <div class="bg-gray-900 rounded-2xl shadow-xl p-6 text-white flex flex-col items-center justify-center relative overflow-hidden">
                 <div class="absolute top-4 left-4 z-10">
-                    <h3 class="text-xl font-bold text-amber-400">🧘 咖啡香氣正念</h3>
-                    <p class="text-xs text-gray-400">模擬 Artisan 曲線監控：點擊以「穩定」您的 RoR</p>
+                    <h3 class="text-xl font-bold text-amber-400" data-i18n="mind_title">🧘 咖啡香氣正念</h3>
+                    <p class="text-xs text-gray-400" data-i18n="mind_subtitle">模擬 Artisan 曲線監控：點擊以「穩定」您的 RoR</p>
                 </div>
 
-                <!-- Canvas for Mindfulness Animation -->
                 <div class="w-full h-[300px] flex items-center justify-center relative z-0">
                     <canvas id="mindfulnessCanvas" width="300" height="300"></canvas>
                 </div>
 
                 <div class="text-center mt-4 z-10">
-                    <p id="focus-instruction" class="text-sm text-gray-300 animate-pulse">
-                        當黃色圓圈擴大時 (壓力升溫)，<br>點擊圓圈中心以進行「調節呼吸」。
+                    <p id="focus-instruction" class="text-sm text-gray-300 animate-pulse" data-i18n="mind_hint">
+                        當黃色圓圈擴大時 (壓力升溫)，點擊圓圈中心以進行「調節呼吸」。
                     </p>
                 </div>
             </div>
-
         </section>
 
     </main>
@@ -221,229 +164,150 @@
     <footer class="bg-amber-950 text-amber-100 py-8">
         <div class="container mx-auto px-4 text-center">
             <h2 class="text-xl font-bold mb-2">里歐咖啡館 Leo's Café</h2>
-            <p class="text-sm opacity-75 max-w-2xl mx-auto">
+            <p class="text-sm opacity-75 max-w-2xl mx-auto" data-i18n="footer_quote">
                 「享受這個『失措』與『探索』的歷程，因為所有的挫折，最終都會濃縮成一杯獨特的風味。」
             </p>
-            <!-- 加入里歐的個人學習空間連結 -->
             <div class="mt-4">
-                <a href="https://dfleoyang-8157.github.io/hello/" target="_blank" class="text-amber-300 hover:text-white transition font-medium text-sm underline">
+                <a href="https://dfleoyang-8157.github.io/hello/" target="_blank" class="text-amber-300 hover:text-white transition font-medium text-sm underline" data-i18n="footer_link">
                     🚀 探索里歐的個人學習空間
                 </a>
             </div>
             <div class="mt-4 text-xs text-gray-500">
-                Created based on the workshop presentation data.
+                Created for Leo's Café Workshop.
             </div>
         </div>
     </footer>
 
-    <!-- JavaScript Logic -->
     <script>
-        // --- State Management ---
+        // --- Translations ---
+        const i18n = {
+            zh: {
+                nav_origin: "緣起", nav_journey: "烘焙旅程", nav_sel: "情緒學習",
+                hero_title: "從拉花拿鐵到手烘黑金", hero_desc: "這不僅是一杯咖啡的風味蛻變，更是一場關於覺察、失措與平衡的情緒學習之旅。<br>面對黑咖啡的純粹，我們也同時學會了面對真實的自我與壓力。",
+                hero_btn: "開始探索烘焙曲線",
+                journey_title: "🔥 烘焙升溫曲線 (Roasting Curve)", journey_desc: "點擊圖表中的階段探索心路歷程。曲線包含了「回溫點」、「轉黃」等關鍵事件。",
+                phase1_btn: "1. 脫水期", phase2_btn: "2. 轉黃期", phase3_btn: "3. 風味發展期",
+                matrix_title: "🧠 情緒學習對照表 (SEL Matrix)", matrix_desc: "將烘焙的物理化學變化，對應到教師的情緒管理歷程。",
+                mind_title: "🧘 咖啡香氣正念", mind_subtitle: "模擬 Artisan 曲線監控：點擊以「穩定」您的 RoR",
+                mind_hint: "當黃色圓圈擴大時 (壓力升溫)，點擊圓圈中心以進行「調節呼吸」。",
+                footer_quote: "「享受這個『失措』與『探索』的歷程，因為所有的挫折，最終都會濃縮成一杯獨特的風味。」",
+                footer_link: "🚀 探索里歐的個人學習空間",
+                chart_temp: "豆溫 (°C)", chart_time: "時間 (分)",
+                events: ['入豆', '回溫點', '轉黃', '梅納始', '焦糖始', '一爆', '二爆', '結束'],
+                sel_items: [
+                    { title: "脫水期 (Drying)", span: "入豆 → 轉黃", phys: "回溫點是最低谷。排出水分。", sel: "❤️ 情緒對應：壓力認知與清空", sel_desc: "經歷「回溫點」的低潮後，開始穩步升溫。意識到壓力，並為新的改變做準備。" },
+                    { title: "轉黃期 (Yellowing)", span: "轉黃 → 梅納始", phys: "豆子轉黃，梅納反應開始。風味前驅物生成。", sel: "❤️ 情緒對應：覺察與校準", sel_desc: "進入複雜的化學反應區。需要高專注度，將「失措」視為數據點，進行精準校準。" },
+                    { title: "風味發展期 (Dev)", span: "焦糖始 → 二爆", phys: "焦糖化、一爆、二爆。壓力完全釋放。", sel: "❤️ 情緒對應：釋放與平衡", sel_desc: "一爆是壓力釋放。此後需穩定 RoR，在熱情 (酸質) 與穩定 (醇厚度) 間找到平衡。" }
+                ],
+                cost_title: "外購精品豆", cost_self: "自己烘焙", cost_y: "每半磅成本 (NT$)", cost_main: "成本比較：巨大的行動動力"
+            },
+            en: {
+                nav_origin: "Origin", nav_journey: "Roast Journey", nav_sel: "SEL",
+                hero_title: "From Latte Art to Roasted Gold", hero_desc: "This is more than a change in coffee flavor; it's a journey of awareness, struggle, and balance.<br>Facing the purity of black coffee, we learn to face our true selves and stress.",
+                hero_btn: "Explore Roast Curve",
+                journey_title: "🔥 Roasting Curve", journey_desc: "Click chart phases to explore the journey. Includes key events like Turning Point and Yellowing.",
+                phase1_btn: "1. Drying", phase2_btn: "2. Yellowing", phase3_btn: "3. Development",
+                matrix_title: "🧠 SEL Matrix", matrix_desc: "Mapping physical roasting changes to emotional management processes for educators.",
+                mind_title: "🧘 Aroma Mindfulness", mind_subtitle: "Simulating Artisan Monitor: Click to 'stabilize' your RoR",
+                mind_hint: "When the yellow circle expands (rising pressure), click the center to 'regulate breathing'.",
+                footer_quote: "「Enjoy the process of 'losing way' and 'exploration', for all setbacks eventually concentrate into a unique flavor.」",
+                footer_link: "🚀 Explore Leo's Learning Space",
+                chart_temp: "Bean Temp (°C)", chart_time: "Time (min)",
+                events: ['Charge', 'Turning Point', 'Yellowing', 'Maillard Start', 'Caramel Start', 'First Crack', 'Second Crack', 'End'],
+                sel_items: [
+                    { title: "Drying Phase", span: "Charge → Yellow", phys: "TP is the lowest point. Removing moisture.", sel: "❤️ Emotional: Recognition & Clearing", sel_desc: "After the low of 'Turning Point', start rising steadily. Recognize stress and prepare for change." },
+                    { title: "Yellowing Phase", span: "Yellow → Maillard", phys: "Beans turn yellow; Maillard begins. Flavor precursors form.", sel: "❤️ Emotional: Awareness & Calibration", sel_desc: "Entering complex reactions. Requires focus; view 'setbacks' as data points for precision calibration." },
+                    { title: "Development Phase", span: "Caramel → 2nd Crack", phys: "Caramelization and cracks. Total pressure release.", sel: "❤️ Emotional: Release & Balance", sel_desc: "Cracks are the release of pressure. Stabilize RoR to find the balance between acidity and body." }
+                ],
+                cost_title: "Premium Beans", cost_self: "Home Roasted", cost_y: "Cost / Half Lb (NT$)", cost_main: "Cost Comparison: The Catalyst for Action"
+            }
+        };
+
+        // --- State ---
         const state = {
+            lang: 'zh',
             currentPhase: 'drying',
             chartInstance: null,
             costChartInstance: null,
-            mindfulness: {
-                radius: 50,
-                growing: true,
-                score: 0,
-                animationId: null
-            }
+            mindfulness: { radius: 50, growing: true }
         };
 
-        // --- Data: Roast Curve (UPDATED based on user request: 200°C -> 100°C @ 2:00 -> 210°C @ 11:00) ---
-        const roastData = {
-            // New labels aligning with the 11-minute timeline and new events
-            labels: ['0:00 入豆', '1:00', '2:00 回溫點', '3:00 轉黃', '4:00 梅納始', '5:00', '6:00 焦糖始', '7:00', '8:00 一爆', '9:00', '10:00 二爆', '11:00 結束'],
-            // New temperature curve: Drop from 200 to 100 (Turning Point) then rise to 210
-            temps: [200, 140, 100, 115, 145, 160, 175, 188, 198, 203, 208, 210],
-            // Phase definitions based on the new timings
-            phases: {
-                drying: { start: 0, end: 3, label: '脫水期' }, // End at 3:00 (index 3, which is 轉黃)
-                yellowing: { start: 3, end: 4, label: '轉黃期' }, // End at 4:00 (index 4, which is 梅納始)
-                development: { start: 4, end: 11, label: '風味發展期' }
-            },
-            // Specific event indices: [Turning Point, Yellowing, Maillard Start, Caramel Start, First Crack, Second Crack]
-            eventIndices: [2, 3, 4, 6, 8, 10] 
-        };
+        // --- Core Functions ---
+        function toggleLanguage() {
+            state.lang = state.lang === 'zh' ? 'en' : 'zh';
+            document.getElementById('lang-toggle-text').innerText = state.lang === 'zh' ? 'EN' : 'ZH';
+            updateUI();
+        }
 
-        // --- Data: Content Content (Updated for new phases) ---
-        const contentData = {
-            drying: {
-                title: "第一部：脫水期 (Drying Phase) - 壓力最低谷",
-                subtitle: "從拿鐵的掩蓋到面對黑咖啡的本質",
-                body: `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                        <div>
-                            <p class="mb-4 text-lg">
-                                烘焙初期，豆溫會經歷一個戲劇性的下降，直到觸及<strong>回溫點</strong>（約 ${roastData.temps[2]}°C）。這代表了在開始學習前，必須先適應環境和工具。
-                            </p>
-                            <p class="mb-4">
-                                情緒上，這是從舊習慣（拿鐵的舒適圈）到新環境（手烘黑咖啡）的適應期。必須先脫去「水分」（舊的依賴），才能開始升溫。
-                            </p>
-                            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-amber-300">
-                                <h4 class="font-bold text-amber-800 mb-1">關鍵事件：回溫點 (2:00)</h4>
-                                <p class="text-sm text-gray-600">度過最低谷，開始穩步升溫。確認目標後，必須穩定投入熱量。</p>
-                            </div>
-                        </div>
-                        <div class="bg-white p-6 rounded-xl shadow-inner text-center">
-                            <div class="text-6xl mb-4 transition-transform hover:scale-110 cursor-pointer">📉 ➔ 📈</div>
-                            <p class="font-bold text-amber-900">度過低谷，開始升溫</p>
-                            <p class="text-sm text-gray-500 mt-2">如同適應新工作環境或挑戰，從谷底開始，才能穩健成長。</p>
-                        </div>
-                    </div>
-                `
-            },
-            yellowing: {
-                title: "第二部：轉黃期 (Yellowing Phase) - 風味起始點",
-                subtitle: "梅納反應開始：成本壓力下的精準覺察",
-                body: `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <p class="mb-4 text-lg">
-                                豆子從綠色轉為黃色 (<strong>轉黃</strong>，約 ${roastData.labels[3].split(' ')[0]})，標誌著<strong>梅納反應開始</strong>（約 ${roastData.labels[4].split(' ')[0]}）。這是胺基酸與還原糖作用，形成複雜風味前驅物的關鍵階段。
-                            </p>
-                            <p class="mb-4">
-                                正是高價精品豆的成本壓力，促使我決心進入這複雜的領域，從手寫筆記到 **Arduino + Artisan** 數位化，追求精準度。
-                            </p>
-                            <p class="text-sm text-gray-500 italic">"在複雜的化學反應中，我們必須用數據來校準，避免失措。"</p>
-                        </div>
-                        <div class="chart-wrapper h-64 bg-white rounded-lg p-2">
-                            <div class="relative w-full h-full">
-                                <canvas id="costChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                `
-            },
-            development: {
-                title: "第三部：風味發展期 (Development Phase) - 釋放與平衡",
-                subtitle: "焦糖化與爆裂聲：情緒的調節藝術",
-                body: `
-                    <div class="space-y-4">
-                        <p class="text-lg">
-                            此階段從<strong>焦糖化反應開始</strong>（約 ${roastData.labels[6].split(' ')[0]}），歷經<strong>一爆</strong>和<strong>二爆</strong>。一爆是豆子內部壓力積聚後的劇烈釋放，像極了我們在工作中的情緒爆發。
-                        </p>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                            <div class="bg-red-50 p-4 rounded-lg">
-                                <h4 class="font-bold text-red-800">🔥 升溫 (Acidity)</h4>
-                                <p class="text-xs text-gray-600 mt-1">代表保持熱忱與酸質</p>
-                            </div>
-                            <div class="bg-amber-50 p-4 rounded-lg">
-                                <h4 class="font-bold text-amber-800">⚖️ 平衡 (Balance)</h4>
-                                <p class="text-xs text-gray-600 mt-1">控制 RoR，尋找甜蜜點</p>
-                            </div>
-                            <div class="bg-brown-50 p-4 rounded-lg" style="background-color: #efebe9;">
-                                <h4 class="font-bold text-amber-950">🪵 醇厚 (Body)</h4>
-                                <p class="text-xs text-gray-600 mt-1">代表維持穩定與口感</p>
-                            </div>
-                        </div>
-                        <p class="mt-4">
-                            一爆後的發展時間，決定了風味的平衡。如同壓力釋放後，我們必須**快速降溫**，避免過度焦化 (情緒失控)，找到熱忱與穩定的最佳平衡點。
-                        </p>
-                        <div class="text-center mt-6">
-                            <button onclick="document.getElementById('sel-mindfulness').scrollIntoView({behavior: 'smooth'})" class="text-amber-600 font-bold hover:underline">
-                                👇 下滑體驗「咖啡香氣正念」練習
-                            </button>
-                        </div>
-                    </div>
-                `
-            }
-        };
+        function updateUI() {
+            // Update static elements
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.innerHTML = i18n[state.lang][key];
+            });
 
-        // --- Initialization ---
-        document.addEventListener('DOMContentLoaded', () => {
+            // Update SEL Matrix
+            const matrixContainer = document.getElementById('sel-matrix-container');
+            matrixContainer.innerHTML = i18n[state.lang].sel_items.map(item => `
+                <div class="group p-4 border border-gray-200 rounded-lg hover:bg-amber-50 transition cursor-pointer">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="font-bold text-lg text-amber-800">${item.title}</h4>
+                        <span class="text-xs bg-gray-200 px-2 py-1 rounded">${item.span}</span>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-2"><strong>Physical:</strong> ${item.phys}</p>
+                    <div class="pl-4 border-l-2 border-amber-500">
+                        <p class="text-amber-700 font-medium text-sm">${item.sel}</p>
+                        <p class="text-gray-500 text-xs mt-1">${item.sel_desc}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            // Update Chart and Dynamic Content
             initRoastChart();
-            updatePhase('drying'); // Load initial content
-            initMindfulness();
-        });
+            updatePhase(state.currentPhase);
+        }
 
-        // --- Logic: Roasting Chart ---
+        const roastData = {
+            times: ['0:00', '1:00', '2:00', '3:00', '4:00', '5:00', '6:00', '7:00', '8:00', '9:00', '10:00', '11:00'],
+            temps: [200, 140, 100, 115, 145, 160, 175, 188, 198, 203, 208, 210],
+            eventIdx: [0, 2, 3, 4, 6, 8, 10, 11]
+        };
+
         function initRoastChart() {
             const ctx = document.getElementById('roastCurveChart').getContext('2d');
-            
-            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, 'rgba(139, 69, 19, 0.8)');
-            gradient.addColorStop(1, 'rgba(139, 69, 19, 0.1)');
+            if (state.chartInstance) state.chartInstance.destroy();
 
-            // Prepare point styles for key events
-            const pointStyles = roastData.temps.map((_, index) => {
-                if (roastData.eventIndices.includes(index)) {
-                    return 8; // Larger point for key events
-                }
-                return 4; // Smaller default point
+            const labels = roastData.times.map((t, i) => {
+                const eventIdx = roastData.eventIdx.indexOf(i);
+                return eventIdx !== -1 ? `${t} ${i18n[state.lang].events[eventIdx]}` : t;
             });
-            const pointColors = roastData.temps.map((_, index) => {
-                if (roastData.eventIndices.includes(index)) {
-                    return '#a0522d'; // Sienna for key events
-                }
-                return '#fff'; 
-            });
-
 
             state.chartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: roastData.labels,
+                    labels: labels,
                     datasets: [{
-                        label: '豆溫 (Bean Temp °C)',
                         data: roastData.temps,
                         borderColor: '#8b4513',
-                        backgroundColor: gradient,
+                        backgroundColor: 'rgba(139, 69, 19, 0.1)',
                         borderWidth: 3,
-                        pointBackgroundColor: pointColors,
-                        pointBorderColor: '#8b4513',
-                        pointRadius: pointStyles,
-                        pointHoverRadius: 10,
-                        fill: true,
-                        tension: 0.2 // Reduced tension for a slightly smoother, but more structured curve
+                        pointBackgroundColor: labels.map((_, i) => roastData.eventIdx.includes(i) ? '#a0522d' : '#fff'),
+                        pointRadius: labels.map((_, i) => roastData.eventIdx.includes(i) ? 6 : 4),
+                        fill: true, tension: 0.2
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = `溫度: ${context.parsed.y}°C`;
-                                    if (roastData.eventIndices.includes(context.dataIndex)) {
-                                        label += ` | ${roastData.labels[context.dataIndex].split(' ')[1] || '事件'}`;
-                                    }
-                                    return label;
-                                },
-                                afterLabel: function(context) {
-                                    const idx = context.dataIndex;
-                                    if (idx <= 3) return "階段: 脫水期"; // Changed from 2 to 3
-                                    if (idx > 3 && idx <= 4) return "階段: 轉黃期";
-                                    return "階段: 風味發展期";
-                                }
-                            }
-                        }
-                    },
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: {
-                            beginAtZero: false,
-                            min: 0,
-                            max: 230,
-                            grid: { color: 'rgba(0,0,0,0.05)' },
-                            title: { display: true, text: '溫度 (°C)' }
-                        },
-                        x: {
-                            grid: { display: false },
-                            title: { display: true, text: '時間 (分)' }
-                        }
+                        y: { title: { display: true, text: i18n[state.lang].chart_temp }, min: 80, max: 220 },
+                        x: { title: { display: true, text: i18n[state.lang].chart_time } }
                     },
-                    onClick: (e, elements) => {
-                        if (elements.length > 0) {
-                            const index = elements[0].index;
-                            if (index <= 3) updatePhase('drying'); // Changed from 2 to 3
-                            else if (index > 3 && index <= 4) updatePhase('yellowing');
+                    onClick: (e, el) => {
+                        if (el.length) {
+                            const i = el[0].index;
+                            if (i <= 3) updatePhase('drying');
+                            else if (i === 4) updatePhase('yellowing');
                             else updatePhase('development');
                         }
                     }
@@ -451,163 +315,92 @@
             });
         }
 
-        // --- Logic: Cost Chart (Loaded dynamically) ---
+        const phaseContent = {
+            zh: {
+                drying: { title: "第一部：脫水期", sub: "壓力最低谷", body: "烘焙初期，豆溫經歷戲劇性下降觸及回溫點。情緒上，這是適應期，必須脫去舊有依賴才能開始升溫。" },
+                yellowing: { title: "第二部：轉黃期", sub: "風味起始點", body: "豆子轉黃標誌梅納反應開始。成本壓力促使我進入數位化領域，追求精準度以避免失措。" },
+                development: { title: "第三部：風味發展期", sub: "釋放與平衡", body: "此階段歷經一爆二爆。壓力釋放後必須快速調節 RoR，在熱情與穩定間尋找平衡。" }
+            },
+            en: {
+                drying: { title: "Phase 1: Drying", sub: "The Low Point", body: "Temp drops to the Turning Point. Emotionally, this is an adaptation phase. We must shed old dependencies before rising." },
+                yellowing: { title: "Phase 2: Yellowing", sub: "Aroma Origin", body: "Maillard begins as beans turn yellow. Cost pressure drove my digital shift to Arduino for precision calibration." },
+                development: { title: "Phase 3: Development", sub: "Release & Balance", body: "Cracks release pressure. Post-crack, we must regulate RoR to balance acidity (passion) and body (stability)." }
+            }
+        };
+
+        function updatePhase(p) {
+            state.currentPhase = p;
+            document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${p}`).classList.add('active');
+
+            const data = phaseContent[state.lang][p];
+            const container = document.getElementById('dynamic-content');
+            container.innerHTML = `
+                <h3 class="text-2xl font-bold text-amber-900 mb-2">${data.title}</h3>
+                <h4 class="text-lg text-amber-600 mb-6 font-medium">${data.sub}</h4>
+                <p class="text-gray-700 leading-relaxed">${data.body}</p>
+                ${p === 'yellowing' ? '<div class="h-64 mt-6"><canvas id="costChart"></canvas></div>' : ''}
+            `;
+            if (p === 'yellowing') setTimeout(initCostChart, 100);
+        }
+
         function initCostChart() {
             const ctx = document.getElementById('costChart');
-            if (!ctx) return; 
-
+            if (!ctx) return;
             if (state.costChartInstance) state.costChartInstance.destroy();
-
             state.costChartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['外購精品豆', '自己烘焙'],
-                    datasets: [{
-                        label: '每半磅成本 (NT$)',
-                        data: [500, 150],
-                        backgroundColor: ['#ef4444', '#22c55e'],
-                        borderRadius: 5
-                    }]
+                    labels: [i18n[state.lang].cost_title, i18n[state.lang].cost_self],
+                    datasets: [{ data: [500, 150], backgroundColor: ['#ef4444', '#22c55e'] }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        title: { display: true, text: '成本比較：巨大的行動動力' }
-                    },
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
+                options: { 
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, title: { display: true, text: i18n[state.lang].cost_main } }
                 }
             });
         }
 
-        // --- Logic: Phase Update & Navigation ---
-        function updatePhase(phaseId) {
-            state.currentPhase = phaseId;
-
-            document.querySelectorAll('.phase-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`btn-${phaseId}`).classList.add('active');
-
-            const container = document.getElementById('dynamic-content');
-            const data = contentData[phaseId];
-            
-            container.style.opacity = '0';
-            setTimeout(() => {
-                container.innerHTML = `
-                    <h3 class="text-2xl font-bold text-amber-900 mb-2">${data.title}</h3>
-                    <h4 class="text-lg text-amber-600 mb-6 font-medium">${data.subtitle}</h4>
-                    <div class="text-gray-700 leading-relaxed space-y-4">
-                        ${data.body}
-                    </div>
-                `;
-                container.style.opacity = '1';
-
-                if (phaseId === 'yellowing') {
-                    setTimeout(initCostChart, 100);
-                }
-            }, 300);
-
-            updateChartColors(phaseId);
-        }
-
-        function updateChartColors(phaseId) {
-            if (!state.chartInstance) return;
-            
-            const newColors = [];
-            const labels = state.chartInstance.data.labels;
-            
-            labels.forEach((_, index) => {
-                let isActive = false;
-                if (phaseId === 'drying' && index <= 3) isActive = true; // Changed from 2 to 3
-                else if (phaseId === 'yellowing' && index > 3 && index <= 4) isActive = true; // Changed from 2 to 3
-                else if (phaseId === 'development' && index > 4) isActive = true;
-                
-                newColors.push(roastData.eventIndices.includes(index) ? (isActive ? '#d97706' : '#a0522d') : (isActive ? '#d97706' : '#fff'));
-            });
-
-            state.chartInstance.data.datasets[0].pointBackgroundColor = newColors;
-            state.chartInstance.data.datasets[0].pointRadius = newColors.map((c, index) => {
-                if (roastData.eventIndices.includes(index)) return 8;
-                return c === '#d97706' ? 6 : 4; 
-            });
-            state.chartInstance.update();
-        }
-
-        function scrollToSection(id) {
-            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // --- Logic: Mindfulness Canvas Animation ---
         function initMindfulness() {
             const canvas = document.getElementById('mindfulnessCanvas');
             const ctx = canvas.getContext('2d');
-            const width = canvas.width;
-            const height = canvas.height;
-            const centerX = width / 2;
-            const centerY = height / 2;
+            const centerX = 150, centerY = 150;
 
-            canvas.addEventListener('click', () => {
+            canvas.onclick = () => {
                 state.mindfulness.radius = Math.max(30, state.mindfulness.radius - 20);
                 state.mindfulness.growing = true;
-                showFeedback("校準成功！保持專注...", "#22c55e");
-            });
-
-            function showFeedback(text, color) {
-                const el = document.getElementById('focus-instruction');
-                const originalText = el.innerHTML;
-                el.innerHTML = `<span style="color:${color}">${text}</span>`;
-                setTimeout(() => {
-                    el.innerHTML = `當黃色圓圈擴大時 (壓力升溫)，<br>點擊圓圈中心以進行「調節呼吸」。`;
-                }, 1500);
-            }
+            };
 
             function animate() {
-                ctx.clearRect(0, 0, width, height);
-
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, 80, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-                ctx.lineWidth = 2;
-                ctx.stroke();
+                ctx.clearRect(0, 0, 300, 300);
+                ctx.beginPath(); ctx.arc(centerX, centerY, 80, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.stroke();
 
                 if (state.mindfulness.growing) {
                     state.mindfulness.radius += 0.3;
-                    if (state.mindfulness.radius > 100) {
-                        state.mindfulness.growing = false;
-                        showFeedback("溫度過高！失措警告！", "#ef4444");
-                    }
+                    if (state.mindfulness.radius > 100) state.mindfulness.growing = false;
                 } else {
                     state.mindfulness.radius -= 0.2;
-                    if (state.mindfulness.radius < 40) {
-                        state.mindfulness.growing = true;
-                    }
+                    if (state.mindfulness.radius < 40) state.mindfulness.growing = true;
                 }
 
-                const gradient = ctx.createRadialGradient(centerX, centerY, 10, centerX, centerY, state.mindfulness.radius);
-                gradient.addColorStop(0, '#f59e0b');
-                gradient.addColorStop(1, 'rgba(245, 158, 11, 0.1)');
-
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, state.mindfulness.radius, 0, Math.PI * 2);
-                ctx.fillStyle = gradient;
-                ctx.fill();
-                ctx.strokeStyle = '#fbbf24';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-
-                ctx.fillStyle = "white";
-                ctx.font = "14px monospace";
-                ctx.textAlign = "center";
+                const g = ctx.createRadialGradient(centerX, centerY, 10, centerX, centerY, state.mindfulness.radius);
+                g.addColorStop(0, '#f59e0b'); g.addColorStop(1, 'rgba(245, 158, 11, 0.1)');
+                ctx.beginPath(); ctx.arc(centerX, centerY, state.mindfulness.radius, 0, Math.PI * 2);
+                ctx.fillStyle = g; ctx.fill();
+                ctx.fillStyle = "white"; ctx.font = "14px monospace"; ctx.textAlign = "center";
                 ctx.fillText(`RoR: ${(state.mindfulness.growing ? '+' : '-')}${Math.abs(state.mindfulness.radius / 10).toFixed(1)}`, centerX, centerY + 5);
-
                 requestAnimationFrame(animate);
             }
-
             animate();
         }
 
+        function scrollToSection(id) { document.getElementById(id).scrollIntoView({ behavior: 'smooth' }); }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUI();
+            initMindfulness();
+        });
     </script>
 </body>
 </html>
